@@ -1,0 +1,43 @@
+# Python cache / build
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pdb
+*.egg-info/
+build/
+dist/
+
+# Virtual environment
+.venv/
+venv/
+env/
+
+# IDE/editor settings
+.vscode/
+.idea/
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# App-specific
+downloads/
+history.json
+*.mp4
+*.mp3
+*.webm
+*.mkv
+*.avi
+*.wav
+*.m4a
+*.part
+*.ytdl
+
+# Logs
+*.log
+
+# Temporary / misc
+*.tmp
+*.bak
+*.swp

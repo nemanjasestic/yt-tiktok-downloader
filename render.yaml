@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: yt-tiktok-downloader
+    env: python
+    plan: free
+    branch: main
+    autoDeploy: true
+    region: frankfurt
+
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app --timeout 600
+
+    buildFilter:
+      paths:
+        - requirements.txt
+        - apt.txt
+        - Procfile
+        - render.yaml
+        - app.py
+        - templates/**
+        - static/**
+
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9

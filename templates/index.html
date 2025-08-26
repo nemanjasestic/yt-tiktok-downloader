@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>YT & TikTok Downloader</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .accent { background: linear-gradient(90deg,#4f46e5,#06b6d4); }
+    .glass { background: rgba(255,255,255,0.03); backdrop-filter: blur(6px); }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body class="bg-[#0b1120] text-gray-100 min-h-screen flex items-center justify-center">
+
+  <div class="flex flex-col lg:flex-row lg:justify-center lg:gap-6 max-w-[95rem] mx-auto w-full p-4">
+
+    <!-- Left Ad (Desktop only) -->
+    <aside class="hidden lg:flex w-48 flex-shrink-0">
+      <div class="w-full h-full bg-gray-800 rounded-lg flex items-center justify-center text-gray-400">
+        Ad Placeholder
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="flex-1 max-w-5xl">
+      <header class="flex items-center justify-between mb-6">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-lg accent flex items-center justify-center text-white font-bold shadow-lg">YT</div>
+          <div>
+            <h1 class="text-2xl font-semibold">YT & TikTok Downloader</h1>
+            <p class="text-sm text-gray-400">MP4 / MP3 • 720p free • 1080p behind skippable ad</p>
+          </div>
+        </div>
+        <nav class="flex items-center gap-4">
+          <a href="/" class="text-gray-300 hover:text-white">Download</a>
+          <a href="/history" class="text-gray-300 hover:text-white">History</a>
+        </nav>
+      </header>
+
+      <main class="glass rounded-xl p-6 shadow-lg">
+        <form id="downloadForm" method="POST" action="/download" class="space-y-4">
+          <div>
+            <label class="text-sm text-gray-300">Video URL</label>
+            <input name="url" type="url" required
+                   placeholder="https://youtu.be/... or https://www.tiktok.com/..."
+                   class="w-full mt-2 p-3 rounded-lg bg-[#081225] border border-gray-800 text-gray-100"/>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="text-sm text-gray-300">Format</label>
+              <select name="format" class="w-full mt-2 p-3 rounded-lg bg-[#081225] border border-gray-800 text-gray-100">
+                <option value="mp4">MP4 (video)</option>
+                <option value="mp3">MP3 (audio)</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="text-sm text-gray-300">Quality</label>
+              <select name="quality" id="quality" class="w-full mt-2 p-3 rounded-lg bg-[#081225] border border-gray-800 text-gray-100">
+                <option value="720p">720p — Free</option>
+                <option value="1080p">1080p — Watch ad</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="flex gap-4 items-center">
+            <button id="downloadBtn" type="submit"
+              class="accent px-5 py-3 rounded-lg text-white font-semibold shadow flex items-center justify-center gap-2 relative">
+              <span id="btnText">Download</span>
+              <svg id="loadingSpinner" class="hidden w-5 h-5 animate-spin absolute right-4"
+                   xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+              </svg>
+            </button>
+            <div id="status" class="text-sm text-gray-400">Ready</div>
+          </div>
+        </form>
+
+        <!-- Mobile Ad -->
+        <div class="mt-6 lg:hidden w-full h-32 bg-gray-800 rounded-lg flex items-center justify-center text-gray-400">
+          Ad Placeholder
+        </div>
+      </main>
+    </div>
+
+    <!-- Right Ad (Desktop only) -->
+    <aside class="hidden lg:flex w-48 flex-shrink-0">
+      <div class="w-full h-full bg-gray-800 rounded-lg flex items-center justify-center text-gray-400">
+        Ad Placeholder
+      </div>
+    </aside>
+
+  </div>
+
+  <!-- Ad Modal -->
+  <div id="adModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black bg-opacity-70 p-4">
+    <div class="w-full max-w-md bg-[#0f1724] p-6 rounded-xl border border-gray-800">
+      <h3 class="text-lg font-semibold mb-3">Watch this short ad to unlock 1080p</h3>
+      <div class="bg-gray-800 h-40 rounded mb-4 flex items-center justify-center text-gray-400">Mock Ad Placeholder</div>
+      <div class="flex justify-between items-center">
+        <div id="adCountdown" class="text-sm text-gray-300">You can skip in <span id="count">5</span>s</div>
+        <button id="skipBtn" disabled class="px-4 py-2 rounded bg-green-600 text-white">Skip</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById('downloadForm');
+    const quality = document.getElementById('quality');
+    const adModal = document.getElementById('adModal');
+    const skipBtn = document.getElementById('skipBtn');
+    const adCount = document.getElementById('count');
+    const status = document.getElementById('status');
+    const spinner = document.getElementById('loadingSpinner');
+    const btnText = document.getElementById('btnText');
+
+    function getEstimatedTime() { return Math.floor(Math.random() * 20) + 10; }
+
+    function beginUiDownloading() {
+      const est = getEstimatedTime();
+      let remaining = est;
+      status.textContent = `Downloading... ~${remaining}s`;
+      spinner.classList.remove('hidden');
+      btnText.textContent = "Downloading...";
+      const countdown = setInterval(() => {
+        remaining -= 1;
+        if (remaining > 0) {
+          status.textContent = `Downloading... ~${remaining}s`;
+        } else {
+          clearInterval(countdown);
+          status.innerHTML = "✅ <span class='text-green-400'>Download complete</span>";
+          btnText.textContent = "Download";
+          spinner.classList.add('hidden');
+        }
+      }, 1000);
+    }
+
+    function showAd() {
+      adModal.classList.remove('hidden');
+      skipBtn.disabled = true;
+      let t = 5;
+      adCount.textContent = t;
+      status.textContent = 'Showing ad...';
+      spinner.classList.remove('hidden');
+      btnText.textContent = "Please wait...";
+      const timer = setInterval(() => {
+        t -= 1;
+        adCount.textContent = t;
+        if (t <= 0) {
+          clearInterval(timer);
+          skipBtn.disabled = false;
+          status.textContent = 'Ad finished - click Skip to continue';
+          spinner.classList.add('hidden');
+          btnText.textContent = "Download";
+        }
+      }, 1000);
+    }
+
+    form.addEventListener('submit', (e) => {
+      if (quality.value === '1080p') {
+        // Require ad flow
+        e.preventDefault();
+        showAd();
+      } else {
+        // 720p: let the real request go through, but show UI
+        beginUiDownloading(); // no preventDefault here
+      }
+    });
+
+    skipBtn.addEventListener('click', () => {
+      adModal.classList.add('hidden');
+      // Show UI AND actually submit to Flask so file downloads
+      beginUiDownloading();
+      form.submit();
+    });
+  </script>
+</body>
+</html>

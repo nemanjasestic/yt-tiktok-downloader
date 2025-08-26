@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Download History</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .accent { background: linear-gradient(90deg,#4f46e5,#06b6d4); }
+    .glass { background: rgba(255,255,255,0.03); backdrop-filter: blur(6px); }
+  </style>
+</head>
+<body class="bg-[#0b1120] text-gray-100 min-h-screen p-4 flex items-center justify-center">
+
+  <div class="flex flex-col lg:flex-row lg:justify-center lg:gap-6 max-w-[95rem] mx-auto w-full">
+
+    <!-- Left Ad (Desktop only) -->
+    <aside class="hidden lg:flex w-48 flex-shrink-0">
+      <div class="w-full h-full bg-gray-800 rounded-lg flex items-center justify-center text-gray-400">
+        Ad Placeholder
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="flex-1 max-w-5xl">
+      <header class="flex items-center justify-between mb-6">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-lg accent flex items-center justify-center text-white font-bold shadow-lg">YT</div>
+          <div>
+            <h1 class="text-2xl font-semibold">Download History</h1>
+            <p class="text-sm text-gray-400">Previously downloaded videos</p>
+          </div>
+        </div>
+        <nav class="flex items-center gap-4">
+          <a href="/" class="text-gray-300 hover:text-white">Download</a>
+          <a href="/history" class="text-gray-300 hover:text-white">History</a>
+        </nav>
+      </header>
+
+      <main class="glass rounded-xl p-6 shadow-lg">
+        {% if history %}
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="border-b border-gray-700">
+                <th class="py-2">Title</th>
+                <th class="py-2">Format</th>
+                <th class="py-2">Quality</th>
+                <th class="py-2">Date</th>
+                <th class="py-2">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in history %}
+              <tr class="border-b border-gray-800 hover:bg-gray-900">
+                <td class="py-2">{{ item.title }}</td>
+                <td class="py-2">{{ item.format }}</td>
+                <td class="py-2">{{ item.quality }}</td>
+                <td class="py-2">{{ item.date }}</td>
+                <td class="py-2">
+                  <a href="{{ item.file_url }}" class="text-blue-400 hover:underline">Download</a>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        {% else %}
+          <p class="text-gray-400">No download history found.</p>
+        {% endif %}
+      </main>
+
+      <!-- Mobile Ad -->
+      <div class="mt-6 lg:hidden w-full h-32 bg-gray-800 rounded-lg flex items-center justify-center text-gray-400">
+        Ad Placeholder
+      </div>
+    </div>
+
+    <!-- Right Ad (Desktop only) -->
+    <aside class="hidden lg:flex w-48 flex-shrink-0">
+      <div class="w-full h-full bg-gray-800 rounded-lg flex items-center justify-center text-gray-400">
+        Ad Placeholder
+      </div>
+    </aside>
+
+  </div>
+</body>
+</html>

@@ -1,0 +1,5 @@
+Flask
+gunicorn
+yt-dlp
+tiktok-downloader
+git+https://github.com/pytube/pytube
