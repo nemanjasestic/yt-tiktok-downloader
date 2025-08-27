@@ -1,29 +1,3 @@
-# P# -------------------------
-# Python cache / build
-# -------------------------
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-*.pdb
-*.egg-info/
-build/
-dist/
-
-# -------------------------
-# Virtual environment
-# -------------------------
-.venv/
-venv/
-env/
-
-# -------------------------
-# IDE / editor
-# -------------------------
-.vscode/
-.idea/
-
-# -------------------------
 # -------------------------
 # Python cache / build
 # -------------------------
@@ -60,7 +34,7 @@ Thumbs.db
 # -------------------------
 downloads/
 history.json
-ffmpeg/
+ffmpeg/        # Ignore local ffmpeg binaries
 *.mp4
 *.mp3
 *.webm
