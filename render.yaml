@@ -3,7 +3,7 @@ services:
     name: yt-tiktok-downloader
     env: python
     plan: free
-    branch: main
+    branch: master
     autoDeploy: true
     region: frankfurt
 
