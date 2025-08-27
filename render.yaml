@@ -7,7 +7,9 @@ services:
     autoDeploy: true
     region: frankfurt
 
-    buildCommand: pip install -r requirements.txt
+    buildCommand: |
+      apt-get update && apt-get install -y ffmpeg
+      pip install -r requirements.txt
     startCommand: gunicorn app:app --timeout 600
 
     buildFilter:
