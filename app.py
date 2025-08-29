@@ -85,25 +85,26 @@ def download():
         flash("Please provide a URL.")
         return redirect(url_for("index"))
 
-    # timestamp for filename uniqueness
     ts = datetime.now().strftime("%Y%m%d_%H%M%S")
-
-    # outtmpl: include title and timestamp and id for uniqueness
     outtmpl = os.path.join(DOWNLOAD_DIR, "%(title)s_" + ts + "_%(id)s.%(ext)s")
 
+    # Base yt-dlp options
     ydl_opts = {
         "outtmpl": outtmpl,
         "noplaylist": True,
         "quiet": False,
         "no_warnings": True,
-        # add progress hook for debugging if needed
         "progress_hooks": [],
     }
 
-    # point yt-dlp to ffmpeg folder if present
+    # Use ffmpeg folder if present
     if os.path.isdir(FFMPEG_DIR):
         ydl_opts["ffmpeg_location"] = FFMPEG_DIR
         logging.info(f"Using ffmpeg at: {FFMPEG_DIR}")
+
+    # >>> OPTION 3: use cookies from your installed browser
+    ydl_opts["cookiesfrombrowser"] = ("chrome",)  # or ("firefox",) if you prefer
+    # This tells yt-dlp to grab login/session cookies automatically
 
     # Format rules
     if fmt == "mp3":
@@ -116,7 +117,6 @@ def download():
             }],
         })
     else:  # mp4
-        # try to get appropriate video+audio and merge to mp4
         if quality == "1080p":
             ydl_opts["format"] = "bestvideo[height<=1080]+bestaudio/best"
         else:
@@ -126,12 +126,9 @@ def download():
     try:
         logging.info("Starting download via yt-dlp...")
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(url, download=True)  # downloads
-            prepared = ydl.prepare_filename(info)  # returns filename with original ext
+            info = ydl.extract_info(url, download=True)
+            prepared = ydl.prepare_filename(info)
             base_no_ext = os.path.splitext(prepared)[0]
-            logging.info(f"Prepared filename base: {base_no_ext}")
-
-            # After postprocessing (e.g. mp3), actual file might have different ext.
             actual_file = find_downloaded_file(base_no_ext)
             if not actual_file:
                 logging.error("Downloaded file not found after yt-dlp ran.")
@@ -139,10 +136,8 @@ def download():
 
             logging.info(f"Actual downloaded file: {actual_file}")
 
-            # Create history entry
-            title = info.get("title") if isinstance(info, dict) else None
             entry = {
-                "title": title or os.path.basename(actual_file),
+                "title": info.get("title") if isinstance(info, dict) else os.path.basename(actual_file),
                 "url": url,
                 "format": fmt,
                 "quality": quality,
@@ -151,7 +146,6 @@ def download():
             }
             save_history(entry)
 
-            # Send file to client
             logging.info("Sending file to client...")
             return send_file(actual_file, as_attachment=True)
 
